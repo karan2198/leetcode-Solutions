@@ -6,30 +6,48 @@ using namespace std;
 class Solution {
   public:
   
-    bool dfs(int u,int par,vector<int> adj[],vector<bool> &visited){
-        visited[u] = true;
-        
-        for(auto v:adj[u]){
-            if(v==par) continue;
-            
-            if(visited[v]) return true;
-            
-            if(dfs(v,u,adj,visited)) return true;
+   bool isCyclicConntected( int s,vector<int> adj[], int V, vector<bool>& visited) {
+    // Set parent vertex for every vertex as -1.
+    vector<int> parent(V, -1);
+ 
+    queue<int> q;
+
+    visited[s] = true;
+    q.push(s);
+ 
+    while(!q.empty()) {
+        int u = q.front();
+        q.pop();
+             
+        for(auto v : adj[u]) {
+            if(!visited[v]) {
+                visited[v] = true;
+                q.push(v);
+                parent[v] = u;
+            }
+            else if(parent[u] != v)
+                return true;
         }
-        
-        return false;
     }
+    return false;
+}
+ 
+bool isCyclicDisconntected(int V,vector<int> adj[]) {
+    
+    // Mark all the vertices as not visited
+    vector<bool> visited(V, false);
+ 
+    for(int i = 0; i < V; i++)
+        if(!visited[i] && isCyclicConntected(i,adj, V, visited))
+            return true;
+    return false;
+}
     // Function to detect cycle in an undirected graph.
     bool isCycle(int V, vector<int> adj[]) {
         // Code here
-        vector<bool> visited(V+1,false);
-        for(int i =0;i<V;i++){
-            if(!visited[i]){
-                bool cycle = dfs(i,-1,adj,visited);
-                if(cycle) return true;
-            }
-        }
-        
+       if (isCyclicDisconntected( V,adj))
+        return true;
+    else
         return false;
     }
 };
