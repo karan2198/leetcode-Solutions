@@ -58,7 +58,7 @@ class Solution {
         // code here
          vector<Node*> ans;
         Node* start=head,*end=head;
-        int n=s.length();
+       // int n=s.length();
         
         // pattern string
         unordered_map<char,int> mp1;
