@@ -49,8 +49,8 @@ class Solution
             st.insert(temp2->data);
             temp2 = temp2->next;
         }
-        Node *newList = nullptr; // Initially, the list is empty
-    Node *prev = nullptr;
+        Node *newList = NULL; // Initially, the list is empty
+    Node *prev = NULL;
     
     for(auto x: st){
         Node* newNode = new Node(x);
