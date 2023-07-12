@@ -1,49 +1,48 @@
 class Solution {
 public:
-    
-    bool cycle(int s,vector<vector<int>>& graph,vector<int> &visited,vector<int> &currvisited,vector<int> &ans){
-        visited[s] = true;
-        currvisited[s] = true;
-        
-        for(auto x: graph[s]){
-               if(!visited[x]){
-                  if(cycle(x,graph,visited,currvisited,ans))
-                  {
-                       ans[s] = true;
-                      return true;
-                  }
-               }
-            else if(visited[x] && currvisited[x])
-            {
-                   ans[s] = true;
+    bool dfs(int node, vector<vector<int>>& adj, vector<bool>& visit, vector<bool>& inStack) {
+        // If the node is already in the stack, we have a cycle.
+        if (inStack[node]) {
+            return true;
+        }
+        if (visit[node]) {
+            return false;
+        }
+        // Mark the current node as visited and part of current recursion stack.
+        visit[node] = true;
+        inStack[node] = true;
+        for (auto neighbor : adj[node]) {
+            if (dfs(neighbor, adj, visit, inStack)) {
                 return true;
             }
-                
         }
-        
-        currvisited[s] = false;
+        // Remove the node from the stack.
+        inStack[node] = false;
         return false;
     }
+
     vector<int> eventualSafeNodes(vector<vector<int>>& graph) {
-        int V = graph.size();
-        vector<int> visited(V+1,false);
-        vector<int> currvisited(V+1,false);
-        vector<int> ans(V+1,false);
-        vector<int> safenode;
-        for(int i = 0; i<V; i++){
-           if(!visited[i]){
-              if(cycle(i,graph,visited,currvisited,ans))
-                  ans[i] = true;
-           }
-            
+        int n = graph.size();
+        vector<vector<int>> adj(n);
+
+        for (int i = 0; i < n; i++) {
+            for (auto node : graph[i]) {
+                adj[i].push_back(node);
+            }
         }
-        for(int i = 0; i<V;i++){
-            if(!ans[i])
-                safenode.push_back(i);
+
+        vector<bool> visit(n), inStack(n);
+
+        for (int i = 0; i < n; i++) {
+            dfs(i, adj, visit, inStack);
         }
-        
-        sort(safenode.begin(),safenode.end());
-        
-        return safenode;
+
+        vector<int> safeNodes;
+        for (int i = 0; i < n; i++) {
+            if (!inStack[i]) {
+                safeNodes.push_back(i);
+            }
+        }
+        return safeNodes;
     }
 };
