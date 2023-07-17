@@ -1,37 +1,53 @@
 class Solution {
 public:
     vector<int> smallestSufficientTeam(vector<string>& req_skills, vector<vector<string>>& people) {
-        int n = people.size(), m = req_skills.size();
-        unordered_map<string, int> skillId;
-        for (int i = 0; i < m; i++) {
-            skillId[req_skills[i]] = i;
+       map<string, int> mp;
+        int req_skill = 0;
+        for(int i = 0; i < req_skills.size(); i++){
+            mp[req_skills[i]] = i;
+            req_skill |= (1 << i);
         }
-        vector<int> skillsMaskOfPerson(n);
-        for (int i = 0; i < n; i++) {
-            for (string skill : people[i]) {
-                skillsMaskOfPerson[i] |= 1 << skillId[skill];
+
+        vector<int> ppl(people.size());
+        for(int i = 0; i < people.size(); i++){
+            int p_skills = 0;
+            for(int j = 0; j < people[i].size(); j++){
+                p_skills |= (1 << mp[people[i][j]]);
+            }
+            ppl[i] = p_skills;
+        }
+
+        
+        vector<vector<long long>> dp(ppl.size()+1, vector<long long>(req_skill + 1, INT_MAX));
+        dp[0][0] = 0;
+
+
+        for(int i = 1; i <= ppl.size(); i++){
+            // if we dont consider the current person
+            dp[i] = dp[i-1];
+
+            if(ppl[i-1] == 0) continue;
+
+            // if we consider the current person
+            for(int j = req_skill; j >= 0 ; j--){
+                int cur_person_req_skills = (ppl[i-1]&j);
+                int req_skills_cur_person_dnh = (j^cur_person_req_skills);
+
+                // cout << dp[i][j] << "\n";
+                dp[i][j] = min(dp[i][j], dp[i-1][req_skills_cur_person_dnh] + 1ll);
+                
             }
         }
-        vector<long long> dp(1 << m, (1LL << n) - 1);
-        dp[0] = 0;
-        for (int skillsMask = 1; skillsMask < (1 << m); skillsMask++) {
-            for (int i = 0; i < n; i++) {
-                int smallerSkillsMask = skillsMask & ~skillsMaskOfPerson[i];
-                if (smallerSkillsMask != skillsMask) {
-                    long long peopleMask = dp[smallerSkillsMask] | (1LL << i);
-                    if (__builtin_popcountll(peopleMask) < __builtin_popcountll(dp[skillsMask])) {
-                        dp[skillsMask] = peopleMask;
-                    }
-                }
-            }
-        }
-        long long answerMask = dp[(1 << m) - 1];
+
         vector<int> ans;
-        for (int i = 0; i < n; i++) {
-            if ((answerMask >> i) & 1) {
-                ans.push_back(i);
-            }
+        int skill = req_skill;
+        for(int i = ppl.size(); i >= 1; i--){
+            if(dp[i][skill] == dp[i-1][skill]) continue;
+            ans.push_back(i-1);
+            int cur_person_req_skills = (ppl[i-1]&skill);
+            skill = (skill^cur_person_req_skills);
         }
+
         return ans;
     }
 };
