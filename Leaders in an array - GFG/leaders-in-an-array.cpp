@@ -13,7 +13,7 @@ class Solution{
     public:
     vector<int> leaders(int a[], int n){
         // Code here
-        stack<int> st;
+         stack<int> st;
         vector<int> ans;
         int count = 0;
         for(int i = 0;i<n;i++){
